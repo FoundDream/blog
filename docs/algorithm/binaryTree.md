@@ -322,6 +322,79 @@ var hasPathSum = function (root, targetSum) {
 };
 ```
 
-## 从中序与后序遍历序列构造二叉树
+## 从中序与后序/前序与中序遍历序列构造二叉树
 
 - [106.从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+- [105.从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+这两道题很像，关键是想清楚如何对两个数组进行切割。这道题最近的面试（字节后端 1 面）有考查到，可能改编成中序与后序得出前序，或者中序与前序得出后序。
+
+想清楚如何找到根节点，如何分为左右子树，然后递归即可。递归的终止条件是空数组（代表叶子节点），需要空数组返回 null 就完成了树的构建
+
+```js
+// 106
+var buildTree = function (inorder, postorder) {
+  // 从后序出发，每个后序遍历的尾是根节点
+  if (postorder.length === 0) return null;
+  const rootVal = postorder.pop();
+  const rootIndex = inorder.indexOf(rootVal);
+  const root = new ListNode(rootVal);
+  const leftInorder = inorder.slice(0, rootIndex);
+  const leftPostorder = postorder.slice(0, rootIndex);
+  const rightInorder = inorder.slice(rootIndex + 1);
+  const rightPostorder = postorder.slice(rootIndex);
+  root.left = buildTree(leftInorder, leftPostorder);
+  root.right = buildTree(rightInorder, rightPostorder);
+  return root;
+};
+```
+
+```js
+// 105
+var buildTree = function (preorder, inorder) {
+  // 从先序出发，每个先序遍历的头是根节点
+  if (preorder.length === 0) return null;
+  const rootVal = preorder.shift();
+  const rootIndex = inorder.indexOf(rootVal);
+  const root = new ListNode(rootVal);
+  root.left = buildTree(
+    preorder.slice(0, rootIndex),
+    inorder.slice(0, rootIndex)
+  );
+  root.right = buildTree(
+    preorder.slice(rootIndex),
+    inorder.slice(rootIndex + 1)
+  );
+  return root;
+};
+```
+
+## 最大二叉树
+
+- [654.最大二叉树](https://leetcode.cn/problems/maximum-binary-tree/)
+
+这道题和上面两道题很像，如果搞懂了上面的题，这道题也不会有问题。
+
+```js
+var constructMaximumBinaryTree = function (nums) {
+  if (nums.length === 0) return null;
+  let curNum = -Infinity;
+  let rootIndex;
+  for (let i = 0; i < nums.length; i++) {
+    if (nums[i] > curNum) {
+      curNum = nums[i];
+      rootIndex = i;
+    }
+  }
+  const root = new ListNode(curNum);
+  root.left = constructMaximumBinaryTree(nums.slice(0, rootIndex));
+  root.right = constructMaximumBinaryTree(nums.slice(rootIndex + 1));
+  return root;
+};
+```
+
+## 合并二叉树
+
+- [617.合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
+
+这道题和上面两道题很像，只不过这道题是合并两棵树，我们可以把两棵树的节点值相加，然后递归左右子树。
