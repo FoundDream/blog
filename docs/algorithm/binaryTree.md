@@ -397,4 +397,51 @@ var constructMaximumBinaryTree = function (nums) {
 
 - [617.合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
 
-这道题和上面两道题很像，只不过这道题是合并两棵树，我们可以把两棵树的节点值相加，然后递归左右子树。
+这道题是没有看题解独立完成的一道题，我觉得只要掌握好递归的逻辑，这道题还是挺简单的。
+
+首先考虑这道题的递归结束条件，就是两个节点都为 null，当只有一个节点有值的时候直接返回有值的节点即可。接着就是认为递归返回的是正确的，把每一个节点的左右节点都合并即可。
+
+```js
+var mergeTrees = function (root1, root2) {
+  if (!root1 && !root2) return null;
+  if (root1 && !root2) return root1;
+  if (!root1 && root2) return root2;
+  const root = new ListNode(root1.val + root2.val);
+  root.left = mergeTrees(root1.left, root2.left);
+  root.right = mergeTrees(root1.right, root2.right);
+  return root;
+};
+
+var mergeTrees = function (root1, root2) {
+  if (!root1 && !root2) return null;
+  if (root1 && !root2) return root1;
+  if (!root1 && root2) return root2;
+  root1.val = root1.val + root2.val;
+  root1.left = mergeTrees(root1.left, root2.left);
+  root1.right = mergeTrees(root1.right, root2.right);
+  return root1;
+};
+```
+
+## 二叉搜索树中的搜索
+
+- [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/description/)
+
+这道题是二叉搜索树的基础应用，题目本身不难，但是有一个比较有意思的点：我们如果发现值不相等，要继续搜索，这个时候我们要记得 return 新搜索的结果，因为最后判题是看我们的最后一次 return，所以我们需要通过 return 结果，一层层传递到最外层，这样才能拿到结果。
+
+```js
+var searchBST = function (root, val) {
+  // 如果没有搜索到，root 就是 null，会返回 null
+  if (!root || root.val === val) return root;
+  else if (root.val > val) return searchBST(root.left, val); // 不要漏了 return
+  else if (root.val < val) return searchBST(root.right, val);
+};
+```
+
+## 验证二叉搜索树
+
+- [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/description/)
+
+```js
+
+```
