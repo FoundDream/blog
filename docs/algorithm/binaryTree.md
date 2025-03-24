@@ -427,6 +427,8 @@ var mergeTrees = function (root1, root2) {
 
 - [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/description/)
 
+在刷了几道二叉搜索树我有一个心得：我们考虑二叉搜索树的过程的时候，如果使用中序遍历，可以从叶子节点开始，去思考如何写递归终止条件和对初始值的处理。
+
 这道题是二叉搜索树的基础应用，题目本身不难，但是有一个比较有意思的点：我们如果发现值不相等，要继续搜索，这个时候我们要记得 return 新搜索的结果，因为最后判题是看我们的最后一次 return，所以我们需要通过 return 结果，一层层传递到最外层，这样才能拿到结果。
 
 ```js
@@ -442,6 +444,233 @@ var searchBST = function (root, val) {
 
 - [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/description/)
 
-```js
+第二次写这道题的时候还是出现了一个问题，这道题本身需要利用中序遍历，去看得到的结果是否为单调递增，所以我们需要一个 prev 变量求记录前一个变量的值，但是一开始的时候，我直接把 prev 设置为 null，然后发现如果根节点是 null 的时候，会报错。
 
+所以在处理根节点的时候，需要先判断根节点是否为 null，这样可以避免一开始根节点没有 val 报错
+
+```js
+var isValidBST = function (root) {
+  // 利用中序遍历，去看得到的结果是否为单调递增
+  let prev = null;
+  const dfs = (node) => {
+    if (!node) return true;
+    const left = dfs(node.left);
+    // 注意要判断 prev !== null
+    if (prev !== null && prev.val >= node.val) return false;
+    prev = node;
+    const right = dfs(node.right);
+    return left && right;
+  };
+  return dfs(root);
+};
 ```
+
+## 二叉搜索树的最小绝对差
+
+- [530. 二叉搜索树的最小绝对差](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/description/)
+
+跟验证二叉树一样的思路，如果上面会处理 prev，这道题也没有问题
+
+```js
+var getMinimumDifference = function (root) {
+  let res = Infinity;
+  let prev = null;
+  const dfs = (node) => {
+    if (!node) return;
+    dfs(node.left);
+    if (prev !== null) {
+      res = Math.min(res, node.val - prev);
+    }
+    prev = node.val;
+    dfs(node.right);
+  };
+  dfs(root);
+  return res;
+};
+```
+
+## 二叉搜索树中的众数
+
+- [501. 二叉搜索树中的众数](https://leetcode.cn/problems/find-mode-in-binary-search-tree/description/)
+
+二叉搜索树都可以考虑中序遍历，相当于单调递增的数组。这道题就是维护一下最大计数和前一个数字和计数即可，
+
+```js
+var findMode = function (root) {
+  let maxCount = -Infinity;
+  let curCount = 1;
+  let curNum;
+  let preNum = null;
+  let res = [];
+  const dfs = (node) => {
+    if (!node) return;
+    dfs(node.left);
+    curNum = node.val;
+    // 要注意处理preNum没有数的情况，如果前一个数和当前数相等，则当前数计数加一
+    if (preNum !== null && preNum === curNum) curCount++;
+    else curCount = 1;
+    // 如果当前数计数和最大计数相等，则把当前数加入结果数组
+    if (curCount === maxCount) res.push(curNum);
+    // 如果当前数计数大于最大计数，则更新最大计数，并清空结果数组，把当前数加入结果数组
+    if (curCount > maxCount) {
+      maxCount = curCount;
+      res = [];
+      res.push(curNum);
+    }
+    preNum = curNum;
+    dfs(node.right);
+  };
+  dfs(root);
+  return res;
+};
+```
+
+## 二叉树的最近公共祖先
+
+- [236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/description/)
+
+这道题的解法是后序遍历，当遇到 p 或者 q 的时候直接返回节点，然后拿到左右节点，如果左右节点都存在，则说明当前节点是最近公共祖先，如果只有一个存在，则返回存在的那个节点。这样也包括了 p 或者 q 是最近公共祖先的情况。
+
+```js
+var lowestCommonAncestor = function (root, p, q) {
+  const dfs = (node, p, q) => {
+    if (!node) return null;
+    // 这道题的关键
+    if (node === p || node === q) return node;
+    const left = dfs(node.left, p, q);
+    const right = dfs(node.right, p, q);
+    if (right && left) return node;
+    // if (!right && left) return left;
+    // if (!left && right) return right;
+    return left || right; // 更简洁一些
+  };
+  return dfs(root, p, q);
+};
+```
+
+## 二叉搜索树的最近公共祖先
+
+- [235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/description/)
+
+这道题主要是利用二叉搜索树的性质，一旦发现当前节点的值在 p 和 q 之间，则当前节点就是最近公共祖先。如果不清楚为什么，我们可以考虑，我们继续往下遍历会发生什么：如果我们进去了左子树，那么我们永远也接受不到右子树的值，相反同理。
+
+下面给出了两种解法，第二种解法更好一些，可以节省时间，因为第一种解法需要遍历整棵树，而第二种解法只需要遍历一条路径，避免不必要的递归。
+
+```js
+var lowestCommonAncestor = function (root, p, q) {
+  const dfs = (node, p, q) => {
+    if (!node) return null;
+    if (
+      (node.val >= p.val && node.val <= q.val) ||
+      (node.val <= p.val && node.val >= q.val)
+    )
+      return node;
+    const left = dfs(node.left, p, q);
+    const right = dfs(node.right, p, q);
+    return left || right;
+  };
+  return dfs(root, p, q);
+};
+```
+
+```js
+var lowestCommonAncestor = function (root, p, q) {
+  const dfs = (node, p, q) => {
+    if (!node) return null;
+    if (node.val > p.val && node.val > q.val) return dfs(node.left, p, q);
+    if (node.val < p.val && node.val < q.val) return dfs(node.right, p, q);
+    return node;
+  };
+  return dfs(root, p, q);
+};
+```
+
+## 二叉搜索树中的插入操作
+
+- [701. 二叉搜索树中的插入操作](https://leetcode.cn/problems/insert-into-a-binary-search-tree/description/)
+
+我们只要插入到叶子节点即可，没有其他的要求。
+
+```js
+var insertIntoBST = function (root, val) {
+  if (!root) {
+    const node = new TreeNode(val);
+    return node;
+  }
+  if (root.val > val) {
+    root.left = insertIntoBST(root.left, val);
+  } else {
+    root.right = insertIntoBST(root.right, val);
+  }
+  return root;
+};
+```
+
+## 将有序数组转换为二叉搜索树
+
+- [108. 将有序数组转换为二叉搜索树](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/description/)
+
+构造二叉树的话，我觉得就是考虑对数组切片吧，第二种方案是传递索引，效率会更好。
+
+start + end 和 nums.length 其实可以重点关注一下，如果我们传递索引，那么开头就是 0，我们取中值的时候要使用 Math.ceil 或者 Math.floor((start+end+1)/2)。而如果我们传递 nums.length，那么开头就是 1，我们取中值的时候要使用 Math.floor((start+end)/2)。
+
+```js
+var sortedArrayToBST = function (nums) {
+  // 奇数就是中间，偶数就是中间偏右
+  if (nums.length <= 0) return null;
+  let index = Math.floor(nums.length / 2);
+  // 中左右遍历，前序遍历
+  let node = new TreeNode(nums[index]);
+  node.left = sortedArrayToBST(nums.slice(0, index));
+  node.right = sortedArrayToBST(nums.slice(index + 1));
+  return node;
+};
+```
+
+```js
+var sortedArrayToBST = function (nums) {
+  const dfs = (start, end) => {
+    if (end < start) return null;
+    if (nums.length <= 0) return null;
+    let index = Math.ceil((start + end) / 2);
+    // 中左右遍历，前序遍历
+    let node = new TreeNode(nums[index]);
+    node.left = dfs(start, index - 1);
+    node.right = dfs(index + 1, end);
+    return node;
+  };
+  return dfs(0, nums.length - 1);
+};
+```
+
+## 把二叉搜索树转换为累加树
+
+- [538. 把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/description/)
+
+这道题根据图可知，我们需要右中左遍历，利用 prev 变量来记录上一个节点的值，然后每次遍历当前节点的值加上上一个节点的值，然后更新 prev 的值。
+
+通过这道题，可以好好思考一下遍历的过程，一定要真正的理解遍历的过程，这样才能更好的理解递归的过程。
+
+```js
+var convertBST = function (root) {
+  // 右中左遍历
+  let prev = null;
+  const dfs = (node) => {
+    if (!node) return null;
+    dfs(node.right);
+    if (prev !== null) node.val = prev.val + node.val;
+    prev = node;
+    dfs(node.left);
+  };
+  dfs(root);
+  return root;
+};
+```
+
+## 删除二叉搜索树中的节点
+
+- [450. 删除二叉搜索树中的节点](https://leetcode.cn/problems/delete-node-in-a-bst/description/)
+
+## 修剪二叉搜索树
+
+- [669. 修剪二叉搜索树](https://leetcode.cn/problems/trim-a-binary-search-tree/description/)
