@@ -13,9 +13,11 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: '代码随想录 (JS)',
+        text: '算法/手撕',
         items: [
-          { text: '二叉树', link: '/algorithm/binaryTree' },      
+          { text: '二叉树', link: '/algorithm/binaryTree' },
+          { text: '链表', link: '/algorithm/linkedList' },
+          { text: '前端经典手写题', link: '/algorithm/handWrite' },
         ]
       },
     ],
