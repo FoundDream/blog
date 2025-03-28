@@ -232,3 +232,50 @@ var getIntersectionNode = function (headA, headB) {
   return node1;
 };
 ```
+
+## 环形链表
+
+- [141. 环形链表](https://leetcode.cn/problems/linked-list-cycle/description/)
+
+我们使用两个指针，一个指针指向 head，一个指针指向 head.next，然后不断移动指针，如果两个指针相遇，那么就说明有环，否则没有环。
+
+这道题是判断是否有环，为下一题做好了铺垫。
+
+```js
+var hasCycle = function (head) {
+  let slow = head;
+  let fast = head;
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+};
+```
+
+## 环形链表 II
+
+- [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/description/)
+
+这道理需要去推导数学证明，结论是当快慢指针相遇时，慢指针从 head 开始走，快指针从相遇点开始走，当它们再次相遇时，就是环的入口。
+
+```js
+var detectCycle = function (head) {
+  let slow = head;
+  let fast = head;
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (fast === slow) {
+      slow = head;
+      while (slow !== fast) {
+        slow = slow.next;
+        fast = fast.next;
+      }
+      return slow;
+    }
+  }
+  return null;
+};
+```

@@ -15,11 +15,18 @@ export default defineConfig({
       {
         text: '算法/手撕',
         items: [
-          { text: '二叉树', link: '/algorithm/binaryTree' },
+          { text: '数组', link: '/algorithm/array' },
           { text: '链表', link: '/algorithm/linkedList' },
+          { text: '二叉树', link: '/algorithm/binaryTree' },
           { text: '前端经典手写题', link: '/algorithm/handWrite' },
         ]
       },
+      {
+        text: '计算机基础',
+        items: [
+          { text: '计算机网络', link: '/basic/network' },
+        ]
+      }
     ],
 
     outline: {
