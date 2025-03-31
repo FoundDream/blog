@@ -17,6 +17,7 @@ export default defineConfig({
         items: [
           { text: '数组', link: '/algorithm/array' },
           { text: '链表', link: '/algorithm/linkedList' },
+          { text: '哈希表', link: '/algorithm/hashTable' },
           { text: '二叉树', link: '/algorithm/binaryTree' },
           { text: '前端经典手写题', link: '/algorithm/handWrite' },
         ]
