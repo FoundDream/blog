@@ -120,6 +120,31 @@ var isHappy = function (n) {
 };
 ```
 
+这是用 Set 的解法，也可以学习一波，顺便看看乘法的处理方式。
+
+```js
+function isHappy(n) {
+  const seen = new Set();
+
+  while (n !== 1 && !seen.has(n)) {
+    seen.add(n);
+    n = getNextNumber(n);
+  }
+
+  return n === 1;
+}
+
+function getNextNumber(n) {
+  let sum = 0;
+  while (n > 0) {
+    const digit = n % 10;
+    sum += digit * digit;
+    n = Math.floor(n / 10);
+  }
+  return sum;
+}
+```
+
 ## 两数之和
 
 - [1. 两数之和](https://leetcode.cn/problems/two-sum/description/)
@@ -235,8 +260,42 @@ var threeSum = function (nums) {
 
 ## 四数之和
 
-- [18. https://leetcode.cn/problems/4sum/](https://leetcode.cn/problems/4sum/)
+- [18. 四数之和](https://leetcode.cn/problems/4sum/)
+
+通过这道题可以更深刻地理解**剪枝**和**去重**，四数之和其实就是在三数之和的基础上多加了一层 for 循环，不过这个更能考察我们对于细节的处理，一开始写的时候用的是 `j > 1` 去重，后面发现这样会出错，因为我们使用 `i > 0` 和 `j > i + 1` 的目的其实是不要让第一个起始点和前一个数字去做比较，这样有可能会忽略掉一些情况，如果没有想清楚这个点，就会出现错误。在写三数之和的时候理解没有现在深刻。剪枝的话，当满足条件可以直接返回结果了，后面也不会再有答案了。
 
 ```js
-
+var fourSum = function (nums, target) {
+  const numsLength = nums.length;
+  const res = [];
+  nums.sort((a, b) => a - b);
+  for (let i = 0; i < numsLength - 3; i++) {
+    // 剪枝
+    if ((nums[i] || target) > 0 && nums[i] > target) return res;
+    // i 去重
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+    for (let j = i + 1; j < numsLength - 2; j++) {
+      // j 去重
+      if (j > i + 1 && nums[j] === nums[j - 1]) continue;
+      let left = j + 1;
+      let right = numsLength - 1;
+      while (right > left) {
+        const sum = nums[i] + nums[j] + nums[left] + nums[right];
+        if (sum > target) {
+          right--;
+        } else if (sum < target) {
+          left++;
+        } else {
+          res.push([nums[i], nums[j], nums[left], nums[right]]);
+          // left right 去重
+          while (right > left && nums[right] === nums[right - 1]) right--;
+          while (right > left && nums[left] === nums[left + 1]) left++;
+          right--;
+          left++;
+        }
+      }
+    }
+  }
+  return res;
+};
 ```
