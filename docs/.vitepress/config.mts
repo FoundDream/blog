@@ -27,6 +27,10 @@ export default defineConfig({
         text: "计算机基础",
         items: [{ text: "计算机网络", link: "/basic/network" }],
       },
+      {
+        text: "读书笔记",
+        items: [{text: 'Vue 设计与实现', link: '/books/vuejs'}],
+      }
     ],
 
     outline: {
